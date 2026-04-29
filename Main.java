@@ -7,7 +7,9 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseButton;
@@ -27,6 +29,8 @@ public class Main extends Application{
 	ArrayList<Media> songs = new ArrayList<>();
 	ArrayList<Integer> songsHistory = new ArrayList<>();
 	MediaPlayer player;
+	
+	Label lTime = new Label("--:--/--:--");
 	
 	Button bBack = new Button("⏮");
 	Button bPlay = new Button("▶");
@@ -71,12 +75,25 @@ public class Main extends Application{
 		player.setVolume(sound);
 	}
 	
+	public String formatTime(Duration duration) {
+		int seconds = duration.toSeconds();
+		
+	}
+	
 	public void startSong(int index) {
 		currentSong = index;
 		
 		if (player != null) player.stop();
 		
-		player = new MediaPlayer(songs.get(index));
+		try {
+		    player = new MediaPlayer(songs.get(index));
+		} catch (Exception e) {
+			Alert alert = new Alert(Alert.AlertType.ERROR);
+			alert.setHeaderText("Audio Error");
+			alert.setContentText("No audio device found.");
+			alert.show();
+		    return;
+		}
 		player.play();
 		
 		player.setOnEndOfMedia(() -> playNextSong());
@@ -88,6 +105,9 @@ public class Main extends Application{
 			
 			double duration = player.getTotalDuration().toMillis();
 			double currentTime = player.getCurrentTime().toMillis();
+			
+			
+			
 			
 			songProgress.setProgress(currentTime / duration);
 			
@@ -217,7 +237,7 @@ public class Main extends Application{
 		topControls.setAlignment(Pos.CENTER);
 		topControls.setPadding(new Insets(16, 0, 0, 0));
 		topControls.setSpacing(30);
-		topControls.getChildren().addAll(songProgress);
+		topControls.getChildren().addAll(songProgress, lTime);
 		
 		VBox bottomBox = new VBox();
 		bottomBox.getChildren().addAll(topControls, lowerControls);
